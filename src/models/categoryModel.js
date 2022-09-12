@@ -1,22 +1,15 @@
 const mongoose = require("mongoose");
 
-const placeSchema = new mongoose.Schema(
+const categorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Place name is required"],
+      required: [true, "Category name is required"],
+      trim: true,
     },
-    reviewsCount: {
-      type: Number,
-      default: 0,
-    },
-    address: {
+    image: {
       type: String,
-      default: "",
-    },
-    phone: {
-      type: String,
-      default: "",
+      required: [true, "Image is required"],
     },
   },
   {
@@ -26,7 +19,7 @@ const placeSchema = new mongoose.Schema(
   }
 );
 
-placeSchema.set("toJSON", {
+categorySchema.set("toJSON", {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
     delete returnedObject._id;
@@ -34,4 +27,4 @@ placeSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("Place", placeSchema);
+module.exports = mongoose.model("Category", categorySchema);

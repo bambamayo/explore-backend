@@ -9,7 +9,8 @@ const cors = require("cors");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
-//Import routers here
+const placeRouter = require("./routes/placeRoutes");
+const categoryRouter = require("./routes/categoryRoutes");
 
 const app = express();
 
@@ -54,6 +55,8 @@ app.use(xss());
  ***/
 
 //Routes
+app.use("/api/v1/places", placeRouter);
+app.use("/api/v1/category", categoryRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
