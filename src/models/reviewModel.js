@@ -7,11 +7,6 @@ const reviewSchema = new mongoose.Schema(
       required: [true, "Place is required"],
       ref: "Place",
     },
-    category: {
-      type: mongoose.Types.ObjectId,
-      rrquired: [true, "Category is required"],
-      ref: "Category",
-    },
     title: {
       type: String,
       required: [true, "Review title is required"],
@@ -24,6 +19,13 @@ const reviewSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    comments: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "Comment",
+        default: [],
+      },
+    ],
     likes: {
       type: Number,
       default: 0,
