@@ -9,6 +9,9 @@ const Place = require("../models/placeModel");
 exports.getAllPlaces = catchAsync(async (req, res, next) => {
   const places = await Place.find({}, null, {
     sort: { createdAt: -1 },
+  }).populate({
+    path: "category",
+    select: "name image",
   });
 
   res.status(200).json({
@@ -25,7 +28,7 @@ exports.getAllPlaces = catchAsync(async (req, res, next) => {
  * CONTROLLER TO GET ONE PLACE
  * ******/
 exports.getOnePlace = catchAsync(async (req, res, next) => {
-  const place = await Place.findById(req.params.id);
+  const place = await Place.findById(req.params.id).populate("category");
 
   if (!place) {
     return next(new AppError("No place found with that ID", 404));
@@ -54,6 +57,7 @@ exports.createPlace = catchAsync(async (req, res, next) => {
 
   const newPlace = await Place.create({
     name: req.body.name,
+    category: req.body.category,
   });
 
   await newPlace.save();
@@ -68,10 +72,17 @@ exports.createPlace = catchAsync(async (req, res, next) => {
 });
 
 /*****
- * CONTROLLER FOR EDITING POLL DETAILS
+ * CONTROLLER FOR EDITING PLACE DETAILS
  * ******/
 exports.editPlaceDetails = catchAsync(async (req, res, next) => {
-  const filteredBody = filterObj(req.body, "name", "address", "phone", "email");
+  const filteredBody = filterObj(
+    req.body,
+    "name",
+    "address",
+    "phone",
+    "email",
+    "category"
+  );
 
   const updatedPlace = await Place.findByIdAndUpdate(
     req.params.id,
@@ -96,5 +107,5 @@ exports.editPlaceDetails = catchAsync(async (req, res, next) => {
 });
 
 /*****
- * CONTROLLER FOR DELETING REVIEW
+ * CONTROLLER FOR DELETING PLACE
  * ******/

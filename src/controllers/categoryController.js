@@ -7,9 +7,7 @@ const Category = require("../models/categoryModel");
  * CONTROLLER TO GET ALL CATEGORIES
  * ******/
 exports.getAllCategories = catchAsync(async (req, res, next) => {
-  const categories = await Category.find({}, null, {
-    sort: { createdAt: -1 },
-  });
+  const categories = await Category.find();
 
   res.status(200).json({
     status: "success",

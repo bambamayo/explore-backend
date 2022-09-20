@@ -6,6 +6,18 @@ const placeSchema = new mongoose.Schema(
       type: String,
       required: [true, "Place name is required"],
     },
+    category: {
+      type: mongoose.Types.ObjectId,
+      required: [true, "Category is required"],
+      ref: "Category",
+    },
+    reviews: [
+      {
+        type: mongoose.Types.ObjectId,
+        default: [],
+        ref: "Review",
+      },
+    ],
     reviewsCount: {
       type: Number,
       default: 0,
