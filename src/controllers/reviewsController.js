@@ -10,10 +10,15 @@ const Place = require("../models/placeModel");
 exports.getAllReviews = catchAsync(async (req, res, next) => {
   const reviews = await Review.find({}, null, {
     sort: { createdAt: -1 },
-  }).populate({
-    path: "place",
-    select: "name",
-  });
+  })
+    .populate({
+      path: "place",
+      select: "name",
+    })
+    .populate({
+      path: "comments",
+      select: "text createdAt",
+    });
 
   res.status(200).json({
     status: "success",
@@ -29,10 +34,16 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
  * CONTROLLER TO GET ONE REVIEW
  * ******/
 exports.getOneReview = catchAsync(async (req, res, next) => {
-  const review = await Review.findById(req.params.id).populate({
-    path: "place",
-    populate: { path: "category" },
-  });
+  const review = await Review.findById(req.params.id)
+    .populate({
+      path: "place",
+      select: "name category reviewsCount address phone",
+      populate: { path: "category", select: "name image" },
+    })
+    .populate({
+      path: "comments",
+      select: "text createdAt",
+    });
 
   if (!review) {
     return next(new AppError("No review found with that ID", 404));
