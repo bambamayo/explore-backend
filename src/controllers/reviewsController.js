@@ -177,3 +177,7 @@ exports.editReviewDetails = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+/*****
+ * CONTROLLER FOR ADDING MEDIA TO REVIEW
+ * ******/

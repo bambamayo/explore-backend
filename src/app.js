@@ -13,6 +13,7 @@ const placeRouter = require("./routes/placeRoutes");
 const categoryRouter = require("./routes/categoryRoutes");
 const reviewRouter = require("./routes/reviewRoutes");
 const commentRouter = require("./routes/commentRoutes");
+const { cloudinaryConfig } = require("./utils/cloudinaryConfig");
 
 const app = express();
 
@@ -25,6 +26,9 @@ app.use(express.urlencoded({ extended: false }));
 
 //Cors
 app.use(cors());
+
+//Cloudinary
+app.use("*", cloudinaryConfig);
 
 //Security HTTP header
 app.use(
