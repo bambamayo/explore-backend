@@ -28,7 +28,10 @@ exports.getAllPlaces = catchAsync(async (req, res, next) => {
  * CONTROLLER TO GET ONE PLACE
  * ******/
 exports.getOnePlace = catchAsync(async (req, res, next) => {
-  const place = await Place.findById(req.params.id).populate("category");
+  const place = await Place.findById(req.params.id).populate({
+    path: "category",
+    select: "name image",
+  });
 
   if (!place) {
     return next(new AppError("No place found with that ID", 404));
