@@ -13,6 +13,7 @@ const placeRouter = require("./routes/placeRoutes");
 const categoryRouter = require("./routes/categoryRoutes");
 const reviewRouter = require("./routes/reviewRoutes");
 const commentRouter = require("./routes/commentRoutes");
+const userRouter = require("./routes/userRoutes");
 const { cloudinaryConfig } = require("./utils/cloudinaryConfig");
 
 const app = express();
@@ -65,6 +66,7 @@ app.use("/api/v1/places", placeRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/reviews", reviewRouter);
 app.use("/api/v1/comments", commentRouter);
+app.use("/api/v1/users", userRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
