@@ -3,9 +3,11 @@ const categoryController = require("../controllers/categoryController");
 
 const router = express.Router();
 
-router.get("/", categoryController.getAllCategories);
-router.post("/", categoryController.createCategory);
+router
+  .route("/")
+  .get(categoryController.getAllCategories)
+  .post(categoryController.createCategory);
 
-router.patch("/:id", categoryController.editCategoryDetails);
+router.route("/:id").patch(categoryController.editCategoryDetails);
 
 module.exports = router;
