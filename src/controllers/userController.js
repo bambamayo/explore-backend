@@ -27,3 +27,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.deleteMyAccount = catchAsync(async (req, res, next) => {
+  console.log("deleted");
+});
