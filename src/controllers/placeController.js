@@ -1,26 +1,61 @@
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
-const { filterObj } = require("../utils/helpers");
+const { filterObj, getPaginationParams } = require("../utils/helpers");
 const Place = require("../models/placeModel");
 
 /*****
  * CONTROLLER TO GET ALL PLACES
  * ******/
 exports.getAllPlaces = catchAsync(async (req, res, next) => {
-  const places = await Place.find({}, null, {
-    sort: { createdAt: -1 },
-  })
+  let query = Place.find();
+
+  let totalPlaces = await Place.countDocuments();
+
+  const { skip, limit, page } = getPaginationParams({
+    page: req.query.page,
+  });
+
+  let order;
+
+  if (req.query.order) {
+    order = req.query.order === "asc" ? 1 : -1;
+  }
+
+  if (req.query.category) {
+    query = query.find({
+      category: req.query.category,
+    });
+  }
+
+  query = query.skip(skip).limit(limit);
+
+  if (req.query.page) {
+    if (skip >= totalPlaces) {
+      return next(
+        new AppError("The page you are requesting does not exist", 404)
+      );
+    }
+  }
+
+  const places = await query
+    .sort({ createdAt: order ?? -1 })
     .select("-updatedAt")
     .populate({
       path: "category",
       select: "name image",
     });
 
+  const pagination = {
+    totalPlaces,
+    totalPages: Math.ceil(totalPlaces / limit),
+    currentPage: page,
+  };
+
   res.status(200).json({
     status: "success",
-    results: places.length,
     message: "places fetched successfully",
     data: {
+      pagination,
       places,
     },
   });

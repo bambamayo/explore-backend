@@ -87,7 +87,7 @@ exports.getOneReview = catchAsync(async (req, res, next) => {
 /*****
  * CONTROLLER FOR GETTING REVIEWS OF A PLACE
  * ******/
-exports.getReviewsForAllPlace = catchAsync(async (req, res, next) => {
+exports.getReviewsForAPlace = catchAsync(async (req, res, next) => {
   const reviews = await Review.find({ place: req.params.id }, null, {
     sort: { createdAt: -1 },
   }).populate({ path: "comments", select: "text createdAt" });
