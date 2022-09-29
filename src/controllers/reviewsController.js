@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
-const { filterObj } = require("../utils/helpers");
+const { filterObj, getCloudinaryPublicUrl } = require("../utils/helpers");
 const Review = require("../models/reviewModel");
 const Place = require("../models/placeModel");
 const Comment = require("../models/commentModel");
@@ -12,9 +12,31 @@ const { uploader } = require("../utils/cloudinaryConfig");
  * CONTROLLER TO GET ALL REVIEWS
  * ******/
 exports.getAllReviews = catchAsync(async (req, res, next) => {
-  const reviews = await Review.find({}, null, {
-    sort: { createdAt: -1 },
-  })
+  const queryObj = { ...req.query };
+  const excludedFields = ["page", "sort", "limit", "fields"];
+  excludedFields.forEach((el) => delete queryObj[el]);
+
+  let query = Review.find({});
+
+  //add if/else for sorting
+  //Pagination
+  const page = req.query.page * 1 || 1;
+  const limit = req.query.limit * 1 || 20;
+  const skip = (page - 1) * limit;
+
+  query = query.skip(skip).limit(limit);
+
+  if (req.query.page) {
+    const numReviews = await Review.countDocuments();
+    if (skip >= numReviews) {
+      return next(
+        new AppError("The page you are requesting does not exist", 404)
+      );
+    }
+  }
+
+  const reviews = await query
+    .sort({ createdAt: -1 })
     .populate({
       path: "place",
       select: "name",
@@ -208,7 +230,7 @@ exports.addReviewImages = catchAsync(async (req, res, next) => {
           },
           (error, result) => {
             if (result) {
-              upload_res.push(result.public_id);
+              upload_res.push(result.secure_url);
             } else if (error) {
               reject(error);
             }
@@ -259,13 +281,18 @@ exports.removeReviewImages = catchAsync(async (req, res, next) => {
     return next(new AppError("No review found with that ID", 404));
   }
 
-  uploader.destroy(req.body.publicId, async function (error, result) {
-    if (error) {
-      return next(new HttpError("Could not delete image(s), please try again"));
+  uploader.destroy(
+    getCloudinaryPublicUrl(req.body.url),
+    async function (error, result) {
+      if (error) {
+        return next(
+          new HttpError("Could not delete image(s), please try again", 400)
+        );
+      }
     }
-  });
+  );
 
-  review.media.pull(req.body.publicId);
+  review.media.pull(req.body.url);
   await review.save();
 
   res.status(200).json({
