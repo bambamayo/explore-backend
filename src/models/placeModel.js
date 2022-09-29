@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const placeSchema = new mongoose.Schema(
   {
@@ -17,6 +18,11 @@ const placeSchema = new mongoose.Schema(
     },
     address: {
       type: String,
+      default: "",
+    },
+    email: {
+      type: String,
+      lowercase: true,
       default: "",
     },
     phone: {

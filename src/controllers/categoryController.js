@@ -10,7 +10,7 @@ const { CLOUDINARY_FOLDERS } = require("../utils/constants");
  * CONTROLLER TO GET ALL CATEGORIES
  * ******/
 exports.getAllCategories = catchAsync(async (req, res, next) => {
-  const categories = await Category.find();
+  const categories = await Category.find().select("-createdAt -updatedAt");
 
   res.status(200).json({
     status: "success",
