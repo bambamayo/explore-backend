@@ -6,6 +6,30 @@ const { uploader } = require("../utils/cloudinaryConfig");
 const { filterObj, getCloudinaryPublicUrl } = require("../utils/helpers");
 const { dataUri } = require("../utils/multer");
 
+exports.getMe = catchAsync(async (req, res, next) => {
+  const { fullname, email, username, avatar, role, createdAt, updatedAt, id } =
+    req.user;
+
+  let me = {
+    fullname,
+    email,
+    username,
+    avatar,
+    role,
+    createdAt,
+    updatedAt,
+    id,
+  };
+
+  res.status(200).json({
+    status: "success",
+    message: "User details fetched successfully",
+    data: {
+      user: me,
+    },
+  });
+});
+
 exports.updateMe = catchAsync(async (req, res, next) => {
   if (req.body.password || req.body.passwordConfirm) {
     return next(new AppError("This route is not for password updates", 400));
