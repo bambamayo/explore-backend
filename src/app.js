@@ -21,12 +21,13 @@ const app = express();
 /***
  MIDDLEWARES
  ***/
+//Cors
+app.use(cors());
+app.options("*", cors());
+
 //Body parser
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: false }));
-
-//Cors
-app.use(cors());
 
 //Cloudinary
 app.use("*", cloudinaryConfig);
