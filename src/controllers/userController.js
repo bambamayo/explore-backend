@@ -1,4 +1,3 @@
-const { default: mongoose } = require("mongoose");
 const User = require("../models/userModel");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
@@ -67,7 +66,7 @@ exports.updateProfilePicture = catchAsync(async (req, res, next) => {
       getCloudinaryPublicUrl(req.user.avatar),
       async function (error) {
         if (error) {
-          return next(new HttpError("Could not update user image", 500));
+          return next(new AppError("Could not update user image", 500));
         }
 
         await User.findByIdAndUpdate(
@@ -102,7 +101,7 @@ exports.updateProfilePicture = catchAsync(async (req, res, next) => {
       });
     })
     .catch((err) => {
-      return next("Something went wrong", 500);
+      return next(new AppError("Something went wrong", 500));
     });
 });
 
