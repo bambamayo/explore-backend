@@ -17,3 +17,13 @@ exports.getCloudinaryPublicUrl = (url, folder) => {
       : "explorer_images"
   }/${folder}/${publicId}`;
 };
+
+exports.getPaginationParams = (params) => {
+  const { page: requestedPage } = params;
+
+  const limit = 20;
+  const page = requestedPage * 1 || 1;
+  const skip = (page - 1) * limit;
+
+  return { limit, skip, page };
+};
