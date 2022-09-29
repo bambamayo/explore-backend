@@ -1,7 +1,10 @@
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
-const { filterObj } = require("../utils/helpers");
+const { filterObj, getCloudinaryPublicUrl } = require("../utils/helpers");
 const Category = require("../models/categoryModel");
+const { uploader } = require("../utils/cloudinaryConfig");
+const { dataUri } = require("../utils/multer");
+const { CLOUDINARY_FOLDERS } = require("../utils/constants");
 
 /*****
  * CONTROLLER TO GET ALL CATEGORIES
@@ -31,9 +34,28 @@ exports.createCategory = catchAsync(async (req, res, next) => {
     return next(new AppError("Category with this name already exist", 422));
   }
 
+  if (!req.file) {
+    return next(new AppError("Please add category image", 422));
+  }
+
+  const file = dataUri(req);
+
+  let categoryImage;
+
+  try {
+    categoryImage = await uploader.upload(file, {
+      folder:
+        process.env.NODE_ENV === "development"
+          ? `explorer_images_dev/${CLOUDINARY_FOLDERS.CATEGORY}`
+          : `explorer_images/${CLOUDINARY_FOLDERS.CATEGORY}`,
+    });
+  } catch (error) {
+    return next(new AppError("Error creating category, please try later", 500));
+  }
+
   const newCategory = await Category.create({
     name: req.body.name,
-    image: req.body.image,
+    image: categoryImage.secure_url,
   });
 
   await newCategory.save();
@@ -48,10 +70,10 @@ exports.createCategory = catchAsync(async (req, res, next) => {
 });
 
 /*****
- * CONTROLLER FOR EDITING CATEGORY
+ * CONTROLLER FOR EDITING CATEGORY DETAILS
  * ******/
 exports.editCategoryDetails = catchAsync(async (req, res, next) => {
-  const filteredBody = filterObj(req.body, "image");
+  const filteredBody = filterObj(req.body, "name");
 
   const updatedCategory = await Category.findByIdAndUpdate(
     req.params.id,
@@ -69,6 +91,66 @@ exports.editCategoryDetails = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: "Category edited successfully",
+    data: {
+      category: updatedCategory,
+    },
+  });
+});
+
+/*****
+ * CONTROLLER FOR EDITING CATEGORY IMAGE
+ * ******/
+exports.editCategoryImage = catchAsync(async (req, res, next) => {
+  if (!req.file) {
+    return next(new AppError("Please add category image", 422));
+  }
+
+  const category = await Category.findById(req.params.id);
+
+  if (category.image) {
+    try {
+      await uploader.destroy(
+        getCloudinaryPublicUrl(category.image, CLOUDINARY_FOLDERS.CATEGORY)
+      );
+
+      await Category.findByIdAndUpdate(req.params.id, { image: "" });
+    } catch (error) {
+      return next(
+        new HttpError("Could not update category details, try later", 500)
+      );
+    }
+  }
+
+  const file = dataUri(req);
+
+  let categoryImage;
+
+  try {
+    categoryImage = await uploader.upload(file, {
+      folder:
+        process.env.NODE_ENV === "development"
+          ? `explorer_images_dev/${CLOUDINARY_FOLDERS.CATEGORY}`
+          : `explorer_images/${CLOUDINARY_FOLDERS.CATEGORY}`,
+    });
+  } catch (error) {
+    return next(new AppError("Error updating category, please try later", 500));
+  }
+
+  const updatedCategory = await Category.findByIdAndUpdate(
+    req.params.id,
+    {
+      name: req.body.name ?? category.name,
+      image: categoryImage.secure_url ?? category.image,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  res.status(200).json({
+    status: "success",
+    message: "Category changed successfully",
     data: {
       category: updatedCategory,
     },
