@@ -17,6 +17,7 @@ const createSendToken = (user, statusCode, res) => {
   const token = signToken(user.id);
 
   user.password = undefined;
+  user.passwordChangedAt = undefined;
 
   res.status(statusCode).json({
     status: "success",
@@ -197,5 +198,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   await user.save({ validateBeforeSave: true });
 
-  createSendToken(newUser, 200, res);
+  createSendToken(user, 200, res);
 });

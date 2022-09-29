@@ -5,6 +5,8 @@ const { multerUploads } = require("../utils/multer");
 
 const router = express.Router();
 
+router.get("/me", authController.protect, userController.getMe);
+
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 
