@@ -9,10 +9,12 @@ const Place = require("../models/placeModel");
 exports.getAllPlaces = catchAsync(async (req, res, next) => {
   const places = await Place.find({}, null, {
     sort: { createdAt: -1 },
-  }).populate({
-    path: "category",
-    select: "name image",
-  });
+  })
+    .select("-updatedAt")
+    .populate({
+      path: "category",
+      select: "name image",
+    });
 
   res.status(200).json({
     status: "success",
@@ -28,10 +30,12 @@ exports.getAllPlaces = catchAsync(async (req, res, next) => {
  * CONTROLLER TO GET ONE PLACE
  * ******/
 exports.getOnePlace = catchAsync(async (req, res, next) => {
-  const place = await Place.findById(req.params.id).populate({
-    path: "category",
-    select: "name image",
-  });
+  const place = await Place.findById(req.params.id)
+    .select("-updatedAt")
+    .populate({
+      path: "category",
+      select: "name image",
+    });
 
   if (!place) {
     return next(new AppError("No place found with that ID", 404));
@@ -64,6 +68,8 @@ exports.createPlace = catchAsync(async (req, res, next) => {
   });
 
   await newPlace.save();
+
+  newPlace.updatedAt = undefined;
 
   res.status(201).json({
     status: "success",
@@ -100,6 +106,8 @@ exports.editPlaceDetails = catchAsync(async (req, res, next) => {
     return next(new AppError("No place found with that ID", 404));
   }
 
+  updatedPlace.updatedAt = undefined;
+
   res.status(200).json({
     status: "success",
     message: "Place edited successfully",
@@ -112,3 +120,4 @@ exports.editPlaceDetails = catchAsync(async (req, res, next) => {
 /*****
  * CONTROLLER FOR DELETING PLACE
  * ******/
+//TODO

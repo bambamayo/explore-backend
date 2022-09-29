@@ -6,16 +6,16 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(
-    authController.protect,
-    authController.restrictTo("admin"),
-    placeController.getAllPlaces
-  )
-  .post(placeController.createPlace);
+  .get(authController.protect, placeController.getAllPlaces)
+  .post(authController.protect, placeController.createPlace);
 
 router
   .route("/:id")
-  .get(placeController.getOnePlace)
-  .patch(placeController.editPlaceDetails);
+  .get(authController.protect, placeController.getOnePlace)
+  .patch(
+    authController.protect,
+    authController.restrictTo("admin"),
+    placeController.editPlaceDetails
+  );
 
 module.exports = router;
